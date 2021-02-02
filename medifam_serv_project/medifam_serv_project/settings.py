@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "rest_framework",
     # Cross origin resource sharing app
     "corsheaders",
+    "accounts",
 ]
 
 MIDDLEWARE = [
