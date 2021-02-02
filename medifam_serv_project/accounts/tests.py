@@ -62,16 +62,20 @@ class AccountTest(APITestCase):
             "email": "email@example.com",
             "password": "pass",
         }
+        self._assert_400_request(short_user_pass_data)
 
-        response = self.client.post(
-            self.create_url,
-            short_user_pass_data,
-            format="json",
-        )
-
-        # Test that we received status code 411 (Short)
-        self.assertEqual(response.status_code, status.HTTP_411_LENGTH_REQUIRED)
-        self.assertEqual(User.objects.all(), 1)
+    def test_password_provided(self):
+        """
+        Description:
+        -----------
+        Always must provide a password.
+        """
+        no_pass_user = {
+            "username": "foo",
+            "email": "email@example.com",
+            "password": "",
+        }
+        self._assert_400_request(no_pass_user)
 
     def test_password_complexity(self):
         """
