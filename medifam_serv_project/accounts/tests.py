@@ -16,11 +16,11 @@ class AccountTest(APITestCase):
         # URL for registering a new user
         self.create_url = reverse("account-create")
 
-    def _assert_400_request(self, data):
+    def _assert_400_request(self, data, msg=""):
         response = self.client.post(self.create_url, data, format="json")
 
         # Assert that we received an 400 status code
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, msg=msg)
         # Assert that no user was created
         self.assertEqual(User.objects.count(), 1)
 
@@ -62,7 +62,7 @@ class AccountTest(APITestCase):
             "email": "email@example.com",
             "password": "pass",
         }
-        self._assert_400_request(short_user_pass_data)
+        self._assert_400_request(short_user_pass_data, "password too short")
 
     def test_password_provided(self):
         """
@@ -75,7 +75,7 @@ class AccountTest(APITestCase):
             "email": "email@example.com",
             "password": "",
         }
-        self._assert_400_request(no_pass_user)
+        self._assert_400_request(no_pass_user, "Must require password")
 
     def test_password_complexity(self):
         """
@@ -91,7 +91,10 @@ class AccountTest(APITestCase):
             "email": "foo@example.com",
             "password": "Alphaonly",
         }
-        self._assert_400_request(alpha_only)
+        self._assert_400_request(
+            alpha_only,
+            "Must fail to create an user with letters only password.",
+        )
 
         # Test with a numeric only password
         num_only = {
@@ -99,7 +102,10 @@ class AccountTest(APITestCase):
             "email": "foo@example.com",
             "password": "12345678..",
         }
-        self._assert_400_request(num_only)
+        self._assert_400_request(
+            num_only,
+            "Must fail to create an user with numeric only password.",
+        )
 
         # Test with no UpperCase
         no_upper = {
@@ -107,7 +113,10 @@ class AccountTest(APITestCase):
             "email": "foo@example.com",
             "password": "noupper123..",
         }
-        self._assert_400_request(no_upper)
+        self._assert_400_request(
+            no_upper,
+            "Must fail to create an user with no upper case password.",
+        )
 
         # Test no non-alphanumeric
 
@@ -116,7 +125,82 @@ class AccountTest(APITestCase):
             "email": "foo@example.com",
             "password": "Noupper123",
         }
-        self._assert_400_request(no_nonalpha)
+        self._assert_400_request(
+            no_nonalpha,
+            "Must fail to create an user with alphanumeric only password.",
+        )
+
+    # TESTS FOR USER SANITY
+    def test_user_provided(self):
+        """
+        Description:
+        -----------
+        Username must be provided.
+        """
+        no_username = {
+            "username": "",
+            "email": "foo@example.com",
+            "password": "Complex*&.123",
+        }
+        self._assert_400_request(no_username, "Must fail username null creation.")
+
+    def test_username_exists(self):
+        """
+        Description:
+        -----------
+        Username uniquelly identifies an user, so it must be unique
+        in the DB.
+        """
+        existent_user = {
+            "username": "testuser",
+            "email": "another@example.com",
+            "password": "MyComplexPass123&.ss",
+        }
+        self._assert_400_request(existent_user, "Must fail if user exists.")
+
+    # TEST FOR EMAIL SANITY
+    def test_email_exists(self):
+        """
+        Description:
+        -----------
+        An email also uniquelly identifies an user, this must be unique across
+        the db.
+        """
+        existent_email_user = {
+            "username": "foo",
+            "email": "test@example.com",
+            "password": "MyComplexPass123&.ss",
+        }
+        self._assert_400_request(existent_email_user, "Must fail if email exists.")
+
+    def test_email_valid(self):
+        """
+        Description:
+        -----------
+        Validates that email is well-formed.
+        """
+        invalid_email = {
+            "username": "foo",
+            "email": "testing",
+            "password": "MyComplexPass123&.ss",
+        }
+        self._assert_400_request(
+            invalid_email,
+            "Email must conforms to '<account>@<server>'",
+        )
+
+    def test_emails_provided(self):
+        """
+        Description:
+        ------------
+        Email is a required field.
+        """
+        invalid_email = {
+            "username": "foo",
+            "email": "",
+            "password": "MyComplexPass123&.ss",
+        }
+        self._assert_400_request(invalid_email, "Fail if email is not provided.")
 
     def test_login_user(self):
         "Make sure we can login an existing user"
