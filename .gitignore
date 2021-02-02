@@ -3,3 +3,7 @@
 
 # Ignore vscode config files
 ./vscode
+
+# __pycache__ folder
+/medifam_serv_project/accounts/__pycache__
+/medifam_serv_project/medifam_serv_project/__pycache__
