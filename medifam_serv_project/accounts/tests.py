@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.urls import reverse
-from rest_framework import response, status
+from rest_framework import status
 from rest_framework.test import APITestCase
 
 
@@ -16,8 +16,20 @@ class AccountTest(APITestCase):
         # URL for registering a new user
         self.create_url = reverse("account-create")
 
+    def _assert_400_request(self, data):
+        response = self.client.post(self.create_url, data, format="json")
+
+        # Assert that we received an 400 status code
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        # Assert that no user was created
+        self.assertEqual(User.objects.count(), 1)
+
     def test_create_user(self):
-        "Make sure we can create a new user and a valid token is created with it"
+        """
+        Description:
+        -----------
+        Make sure we can create a new user and a valid token is created with it.
+        """
         user_data = {
             "username": "foo",
             "email": "foo@example.com",
@@ -40,7 +52,11 @@ class AccountTest(APITestCase):
 
     # Test for password sanity
     def test_long_password(self):
-        "Test that passwords cannot contain less than 8 characters."
+        """
+        Description:
+        -----------
+        Test that passwords cannot contain less than 8 characters.
+        """
         short_user_pass_data = {
             "username": "foo",
             "email": "email@example.com",
@@ -55,6 +71,48 @@ class AccountTest(APITestCase):
 
         # Test that we received status code 411 (Short)
         self.assertEqual(response.status_code, status.HTTP_411_LENGTH_REQUIRED)
+        self.assertEqual(User.objects.all(), 1)
+
+    def test_password_complexity(self):
+        """
+        Description:
+        -----------
+        Password must contain at least:
+        - A numeric character
+        - A non-alphanumeric character
+        - An UpperCase letter
+        """
+        alpha_only = {
+            "username": "foo",
+            "email": "foo@example.com",
+            "password": "Alphaonly",
+        }
+        self._assert_400_request(alpha_only)
+
+        # Test with a numeric only password
+        num_only = {
+            "username": "foo",
+            "email": "foo@example.com",
+            "password": "12345678..",
+        }
+        self._assert_400_request(num_only)
+
+        # Test with no UpperCase
+        no_upper = {
+            "username": "foo",
+            "email": "foo@example.com",
+            "password": "noupper123..",
+        }
+        self._assert_400_request(no_upper)
+
+        # Test no non-alphanumeric
+
+        no_nonalpha = {
+            "username": "foo",
+            "email": "foo@example.com",
+            "password": "Noupper123",
+        }
+        self._assert_400_request(no_nonalpha)
 
     def test_login_user(self):
         "Make sure we can login an existing user"
