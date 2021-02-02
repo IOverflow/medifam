@@ -40,10 +40,19 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # REST Framework app
     "rest_framework",
+    # REST FRAMEWORK app for token authentication
+    "rest_framework.authtoken",
     # Cross origin resource sharing app
     "corsheaders",
     "accounts",
 ]
+
+# Configure REST FRAMEWORK
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.TokenAuthentication",
+    )
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
