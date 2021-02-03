@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
+from rest_framework.authtoken.models import Token
 
 
 class AccountTest(APITestCase):
@@ -15,6 +16,9 @@ class AccountTest(APITestCase):
 
         # URL for registering a new user
         self.create_url = reverse("account-create")
+
+        # URL for login an user
+        self.login_url = reverse('account-login')
 
     def _assert_400_request(self, data, msg=""):
         response = self.client.post(self.create_url, data, format="json")
@@ -37,6 +41,7 @@ class AccountTest(APITestCase):
         }
 
         response = self.client.post(self.create_url, user_data, format="json")
+        user = User.objects.latest("id")
 
         # Make sure we create the user
         self.assertEqual(User.objects.count(), 2)
@@ -49,6 +54,10 @@ class AccountTest(APITestCase):
         self.assertEqual(response.data["username"], user_data["username"])
         self.assertEqual(response.data["email"], user_data["email"])
         self.assertFalse("*7&12.<>$passAcc" in response.data)
+
+        token = Token.objects.get(user=user)
+
+        self.assertEqual(response.data["token"], token.key)
 
     # Test for password sanity
     def test_long_password(self):
@@ -204,4 +213,16 @@ class AccountTest(APITestCase):
 
     def test_login_user(self):
         "Make sure we can login an existing user"
-        pass
+        data = {
+            "username": "testuser",
+            "password": "password",
+        }
+
+        response = self.client.post(self.login_url, data, format='json')
+
+        # Assert we get an OK response
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Check that we received a token
+        self.assertTrue('token' in self.data)
+        # Check token corresponds to user 'testuser'
+        self.assertEqual(Token.objects.get(user=self.test_user).key, response.data['token'])

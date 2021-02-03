@@ -9,10 +9,18 @@ class UserCreateAPIView(APIView):
     Creates an user. If user info is not correct
     then an error code is returned.
     """
+
     def post(self, request, format="json"):
         """
         Not implemented
         """
+        return Response({}, status=status.HTTP_501_NOT_IMPLEMENTED)
+
+
+# LOGIN user API endpoint
+class UserLoginAPIView(APIView):
+    def post(self, request, format="json"):
+        "Not implemented"
         return Response({}, status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
