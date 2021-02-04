@@ -20,15 +20,26 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
     def validate_password(self, data):
+        """
+        Description:
+        -----------
+        Custom password validator that adds a complexity requirement
+        to the user input.
+        """
         numerics = "1234567890"
         upper_case = "abcdefghijklmnopqrstuvwxyz".upper()
         syms = "_,./;'][\\=-)(*&^%$#@!<>?:}{|"
         errors = dict()
         messages = []
+        # Check that password contain at least a numeric character
         if all(x not in data for x in numerics):
             messages += "Must contain at least a numeric character"
+
+        # Check that password contains at least an upper case character
         if all(x not in data for x in upper_case):
             messages += "Must contain at least an upper case character"
+
+        # Check that password contains at least a non-alphanumeric character
         if all(x not in data for x in syms):
             messages += "Must contain a non-alphanumeric character"
 
@@ -37,21 +48,6 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(errors)
 
         return data
-
-    def validate(self, data):
-        user = User(**data)
-        password = data.get("password")
-        errors = dict()
-
-        try:
-            pass_validator.validate_password(password=password, user=user)
-        except exceptions.ValidationError as e:
-            errors["password"] = list(e.messages)
-
-        if errors:
-            raise serializers.ValidationError(errors)
-
-        return super(UserSerializer, self).validate(data)
 
     class Meta:
         model = User
