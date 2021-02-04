@@ -18,7 +18,7 @@ class AccountTest(APITestCase):
         self.create_url = reverse("account-create")
 
         # URL for login an user
-        self.login_url = reverse('account-login')
+        self.login_url = reverse("account-login")
 
     def _assert_400_request(self, data, msg=""):
         response = self.client.post(self.create_url, data, format="json")
@@ -218,11 +218,13 @@ class AccountTest(APITestCase):
             "password": "password",
         }
 
-        response = self.client.post(self.login_url, data, format='json')
+        response = self.client.post(self.login_url, data, format="json")
 
         # Assert we get an OK response
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Check that we received a token
-        self.assertTrue('token' in self.data)
+        self.assertTrue("token" in response.data)
         # Check token corresponds to user 'testuser'
-        self.assertEqual(Token.objects.get(user=self.test_user).key, response.data['token'])
+        self.assertEqual(
+            Token.objects.get(user=self.test_user).key, response.data["token"]
+        )
