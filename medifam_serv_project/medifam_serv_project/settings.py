@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     # Cross origin resource sharing app
     "corsheaders",
     "accounts",
+    "persons",
 ]
 
 # Configure REST FRAMEWORK
