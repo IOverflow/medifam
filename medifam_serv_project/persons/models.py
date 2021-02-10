@@ -58,11 +58,14 @@ class Woman(Person):
     person and also stores cytological tests, pregnances, etc.
     """
 
-    pass
+    def __str__(self) -> str:
+        return f"{self.name} F"
+
 
 
 class Man(Person):
-    pass
+    def __str__(self) -> str:
+        return f"{self.name} M"
 
 
 class CytologicalTest(models.Model):
@@ -75,6 +78,7 @@ class Pregnance(models.Model):
     date_start = models.DateField(blank=False, null=False)
     date_end = models.DateField(blank=True, null=True)
     end_cause = models.CharField(
+        max_length=20,
         choices=EndPregnancyCauseChoices.choices,
         blank=True,
         null=True,
