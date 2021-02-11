@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     # Cross origin resource sharing app
     "corsheaders",
+    "django_filters",
     "accounts",
     "persons",
 ]
