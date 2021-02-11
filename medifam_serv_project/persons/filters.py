@@ -10,6 +10,8 @@ def build_args(operator: str, left: int, right: Optional[int]) -> Dict[str, Any]
     args = {}
     if operator == "+":
         args["age__gt"] = left
+    elif operator == "=":
+        args["age__exact"] = left
     elif operator == "-":
         args["age__lt"] = right
     elif operator == ":" and right is not None:
@@ -42,7 +44,7 @@ def parse_request(request: Request):
     >>> val : {age__gt: 20}
     """
     age_regex = re.compile(
-        r"age=(?P<operator>(\+)|(\-)|(\:))\s*(?P<left>\d+)\s*([yY]\s*(?P<right>\d+))?",
+        r"age=(?P<operator>(\+)|(\-)|(\:)(\=))\s*(?P<left>\d+)\s*([yY]\s*(?P<right>\d+))?",
         re.IGNORECASE,
     )
     age_str = request.query_params.get("age", None)

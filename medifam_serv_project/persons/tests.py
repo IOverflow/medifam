@@ -90,11 +90,7 @@ class PersonAPITest(APITestCase):
         pass
 
     def test_person_get_women(self):
-        # Get woman by name
-        data = {
-            "name": "Kmi Guzman",
-        }
-        response = self.client.get(self.filter_woman, data=data)
+        response = self.client.get(self.filter_woman)
         # Assert we found it
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response_data = response.data
@@ -106,11 +102,7 @@ class PersonAPITest(APITestCase):
         self.assertEqual(response_data["age"], 24)
 
     def test_person_get_men(self):
-        # Get man by name
-        data = {
-            "name": "Adri Gonzalez",
-        }
-        response = self.client.get(self.filter_man, data=data)
+        response = self.client.get(self.filter_man)
         # Assert we found it
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response_data = response.data
@@ -121,8 +113,47 @@ class PersonAPITest(APITestCase):
         # Account for current age, not just year substraction
         self.assertEqual(response_data["age"], 25)
 
+    def test_get_all(self):
+        url = reverse("person-filter", kwargs={"gender": "all"})
+        woman_url = reverse("person-filter", kwargs={"gender": "woman"})
+        man_url = reverse("person-filter", kwargs={"gender": "man"})
+        response = self.client.get(url)
+        # Assert we got an OK response
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Assert we got all persons in db
+        self.assertEqual(Person.objects.all().count(), len(response.data))
+
+        response = self.client.get(woman_url)
+        # assert we got an ok response
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Assert we got all women
+        self.assertEqual(Woman.objects.all().count(), len(response.data))
+
+        response = self.client.get(man_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Man.objects.all().count(), len(response.data))
+
     def test_person_search_by_age(self):
-        pass
+        query = {"age": "=25"}
+        url = reverse("person-filter", kwargs={"gender": "all"})
+        response = self.client.get(url, data=query)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Assert we found only one with exact 25 years old (untill 2022)
+        self.assertEqual(len(response.data), 1)
+        # Assert it is Adri
+        self.assertEqual(response.data[0]["name"], "Adri Gonzalez")
+
+        # Test less than
+        query["age"] = "-25"
+        response = self.client.get(url, data=query)
+        self.assertEqual(len(response.data), 3)
+        self.assertTrue("Dani Guzman" in [x.name for x in response.data])
+
+        # Test range
+        query["age"] = ":25 y 60"
+        response = self.client.get(url, data=query)
+        self.assertEqual(len(response.data), 5)
+        self.assertTrue("Tomas Gonzalez" in [x.name for x in response.data])
 
     def test_person_search_by_name(self):
         pass
