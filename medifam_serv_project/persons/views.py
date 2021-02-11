@@ -31,4 +31,8 @@ class FilterPersonApiView(generics.ListAPIView):
     filter_backends = (filters.DjangoFilterBackend,)
 
     def get(self, request: Request, *args, **kwargs):
+        if kwargs['gender'] == "woman":
+            queryset = Woman.objects.all()
+        else:
+            queryset = Man.objects.all()
         return Response({}, status.HTTP_501_NOT_IMPLEMENTED)

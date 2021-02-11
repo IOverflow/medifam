@@ -2,10 +2,11 @@ from .models import (
     CytologicalTest,
     HomeLockdown,
     Man,
+    Person,
     Pregnance,
     Woman,
 )
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, IntegerField
 
 
 class HomeLockdownSerializer(ModelSerializer):
@@ -18,17 +19,19 @@ class HomeLockdownSerializer(ModelSerializer):
         ]
 
 
-class ManSerializer(ModelSerializer):
+class PersonSerializer(ModelSerializer):
     home_lockdowns = HomeLockdownSerializer(many=True, required=False)
+    age = IntegerField(source="age")
 
     class Meta:
-        model = Man
+        model = Person
         fields = [
             "name",
             "dni",
             "address",
             "history_id",
             "date_of_birth",
+            "age",
             "observations",
             "doner",
             "alcoholic",
@@ -38,6 +41,12 @@ class ManSerializer(ModelSerializer):
             "risk_factors",
             "home_lockdowns",
         ]
+        read_only_fields = ("age",)
+
+
+class ManSerializer(PersonSerializer):
+    class Meta:
+        model = Man
 
 
 class PregnancySerializer(ModelSerializer):

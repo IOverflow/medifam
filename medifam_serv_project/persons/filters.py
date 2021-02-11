@@ -26,10 +26,10 @@ class PersonFilterSet(FilterSet):
             "risk_factors": ["icontains"],
         }
 
-    def filter_by_years(self, queryset: QuerySet, name: str, value):
-        request = self.request
-        # Parse the request to know if filter for lt, gt or in
-        args = parse_request(request)
+    @property
+    def qs(self):
+        queryset = super().qs
+        args = parse_request(self.request)
         if args:
             return queryset.filter(**args)
         else:

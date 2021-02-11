@@ -1,3 +1,5 @@
+import datetime
+from re import T
 from django.db import models
 from django.db.models.enums import TextChoices
 
@@ -45,6 +47,19 @@ class Person(models.Model):
     # Risk factors
     risk_factors = models.TextField(null=True, blank=True)
 
+    # Age calculator method
+    @property
+    def age(self):
+        today = datetime.date.today()
+        return (
+            today.year
+            - self.date_of_birth.year
+            - (
+                (today.month, today.day)
+                < (self.date_of_birth.month, self.date_of_birth.day)
+            )
+        )
+
 
 class EndPregnancyCauseChoices(TextChoices):
     ABORTION = "Abortion", "Abortion"
@@ -60,7 +75,6 @@ class Woman(Person):
 
     def __str__(self) -> str:
         return f"{self.name} F"
-
 
 
 class Man(Person):
