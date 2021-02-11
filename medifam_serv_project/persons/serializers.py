@@ -21,7 +21,7 @@ class HomeLockdownSerializer(ModelSerializer):
 
 class PersonSerializer(ModelSerializer):
     home_lockdowns = HomeLockdownSerializer(many=True, required=False)
-    age = IntegerField(source="age")
+    age = IntegerField(read_only=True)
 
     class Meta:
         model = Person
@@ -45,7 +45,7 @@ class PersonSerializer(ModelSerializer):
 
 
 class ManSerializer(PersonSerializer):
-    class Meta:
+    class Meta(PersonSerializer.Meta):
         model = Man
 
 
@@ -68,8 +68,7 @@ class CytologicalTestSerializer(ModelSerializer):
         ]
 
 
-class WomanSerializer(ModelSerializer):
-    home_lockdowns = HomeLockdownSerializer(many=True, required=False)
+class WomanSerializer(PersonSerializer):
     pregnancies = PregnancySerializer(many=True, required=False)
     cytological_tests = CytologicalTestSerializer(many=True, required=False)
 
@@ -81,6 +80,7 @@ class WomanSerializer(ModelSerializer):
             "address",
             "history_id",
             "date_of_birth",
+            "age",
             "observations",
             "doner",
             "alcoholic",

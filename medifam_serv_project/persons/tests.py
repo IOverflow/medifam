@@ -47,9 +47,9 @@ class PersonAPITest(APITestCase):
         self.create_woman_url = reverse("persons-create-woman")
 
         # Filter woman url
-        self.filter_woman = reverse("person-filter", kwargs={"gender": "woman"})
+        self.filter_woman = reverse("retrieve-woman", kwargs={"dni": "96092912972"})
         # Filter man url
-        self.filter_man = reverse("person-filter", kwargs={"gender": "man"})
+        self.filter_man = reverse("retrieve-man", kwargs={"dni": "96010911144"})
 
     def test_person_create(self):
         data = {
@@ -103,7 +103,7 @@ class PersonAPITest(APITestCase):
         self.assertTrue("age" in response_data)
         self.assertEqual("96092912972", response_data["dni"])
         # Account for current age, not just year substraction
-        self.assertEqual("Age", 24)
+        self.assertEqual(response_data["age"], 24)
 
     def test_person_get_men(self):
         # Get man by name
@@ -119,7 +119,7 @@ class PersonAPITest(APITestCase):
         self.assertTrue("age" in response_data)
         self.assertEqual("96010911144", response_data["dni"])
         # Account for current age, not just year substraction
-        self.assertEqual("Age", 25)
+        self.assertEqual(response_data["age"], 25)
 
     def test_person_search_by_age(self):
         pass

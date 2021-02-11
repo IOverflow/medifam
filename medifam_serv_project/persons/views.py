@@ -1,6 +1,8 @@
+from django.db.models import query
+from .filters import PersonFilterSet
 from .models import Man, Person, Woman
 from rest_framework.response import Response
-from .serializers import ManSerializer, WomanSerializer
+from .serializers import ManSerializer, PersonSerializer, WomanSerializer
 from django.shortcuts import render
 from rest_framework import views, generics
 from rest_framework.request import Request
@@ -26,13 +28,47 @@ class CreateWomanApiView(views.APIView):
         return Response(woman.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class FilterPersonApiView(generics.ListAPIView):
-    queryset = Person.objects.all()
-    filter_backends = (filters.DjangoFilterBackend,)
+class RetrieveWomanApiView(generics.RetrieveAPIView):
+    lookup_field = "dni"
+    serializer_class = WomanSerializer
+    queryset = Woman.objects.all()
 
-    def get(self, request: Request, *args, **kwargs):
-        if kwargs['gender'] == "woman":
-            queryset = Woman.objects.all()
-        else:
-            queryset = Man.objects.all()
-        return Response({}, status.HTTP_501_NOT_IMPLEMENTED)
+
+class RetrieveManApiView(generics.RetrieveAPIView):
+    lookup_field = "dni"
+    serializer_class = ManSerializer
+    queryset = Man.objects.all()
+
+
+class RetrievePersonApiView(generics.RetrieveAPIView):
+    lookup_field = "dni"
+    serializer_class = PersonSerializer
+    queryset = Man.objects.all()
+
+
+class FilterPersonApiView(generics.ListAPIView):
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = PersonFilterSet
+
+    def get_queryset(self):
+        queryset = Person.objects.none()
+        gender = self.kwargs.get("gender", None)
+        if gender:
+            if gender == "man":
+                queryset = Man.objects.all()
+            elif gender == "woman":
+                queryset = Woman.objects.all()
+            else:
+                queryset = Person.objects.all()
+        return queryset
+
+    def get_serializer_class(self):
+        gender = self.kwargs.get("gender", None)
+        if gender:
+            if gender == "man":
+                return ManSerializer
+            elif gender == "woman":
+                return WomanSerializer
+            else:
+                return PersonSerializer
+        return super().get_serializer_class()
