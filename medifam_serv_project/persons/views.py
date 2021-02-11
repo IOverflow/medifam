@@ -1,10 +1,11 @@
-from medifam_serv_project.persons.models import Man, Woman
+from .models import Man, Person, Woman
 from rest_framework.response import Response
 from .serializers import ManSerializer, WomanSerializer
 from django.shortcuts import render
 from rest_framework import views, generics
 from rest_framework.request import Request
 from rest_framework import status
+from django_filters import rest_framework as filters
 
 # Create your views here.
 class CreateManApiView(views.APIView):
@@ -26,17 +27,8 @@ class CreateWomanApiView(views.APIView):
 
 
 class FilterPersonApiView(generics.ListAPIView):
-    def get_queryset(self):
-        gender = self.kwargs["gender"]
-        if gender == "woman":
-            # Do filtering against Woman model
-            try:
-                return Woman.objects.filter(**self.request.query_params)
-            except:
-                print("Error filtering")
-        else:
-            # Do filtering against Man model
-            try:
-                return Man.objects.filter(**self.request.query_params)
-            except:
-                print("error filtering")
+    queryset = Person.objects.all()
+    filter_backends = (filters.DjangoFilterBackend,)
+
+    def get(self, request: Request, *args, **kwargs):
+        return Response({}, status.HTTP_501_NOT_IMPLEMENTED)

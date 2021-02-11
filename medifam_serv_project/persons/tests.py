@@ -46,6 +46,11 @@ class PersonAPITest(APITestCase):
         self.create_man_url = reverse("persons-create-man")
         self.create_woman_url = reverse("persons-create-woman")
 
+        # Filter woman url
+        self.filter_woman = reverse("person-filter", kwargs={"gender": "woman"})
+        # Filter man url
+        self.filter_man = reverse("person-filter", kwargs={"gender": "man"})
+
     def test_person_create(self):
         data = {
             "name": "AName Anonymous",
@@ -85,10 +90,36 @@ class PersonAPITest(APITestCase):
         pass
 
     def test_person_get_women(self):
-        pass
+        # Get woman by name
+        data = {
+            "name": "Kmi Guzman",
+        }
+        response = self.client.get(self.filter_woman, data=data)
+        # Assert we found it
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_data = response.data
+        self.assertTrue("name" in response_data)
+        self.assertTrue("dni" in response_data)
+        self.assertTrue("age" in response_data)
+        self.assertEqual("96092912972", response_data["dni"])
+        # Account for current age, not just year substraction
+        self.assertEqual("Age", 24)
 
     def test_person_get_men(self):
-        pass
+        # Get man by name
+        data = {
+            "name": "Adri Gonzalez",
+        }
+        response = self.client.get(self.filter_man, data=data)
+        # Assert we found it
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_data = response.data
+        self.assertTrue("name" in response_data)
+        self.assertTrue("dni" in response_data)
+        self.assertTrue("age" in response_data)
+        self.assertEqual("96010911144", response_data["dni"])
+        # Account for current age, not just year substraction
+        self.assertEqual("Age", 25)
 
     def test_person_search_by_age(self):
         pass
