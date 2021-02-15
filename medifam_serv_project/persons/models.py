@@ -76,10 +76,18 @@ class Woman(Person):
     def __str__(self) -> str:
         return f"{self.name} F"
 
+    @property
+    def sex(self):
+        return "F"
+
 
 class Man(Person):
     def __str__(self) -> str:
         return f"{self.name} M"
+
+    @property
+    def sex(self):
+        return "M"
 
 
 class CytologicalTest(models.Model):

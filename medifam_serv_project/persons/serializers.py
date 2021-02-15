@@ -6,7 +6,7 @@ from .models import (
     Pregnance,
     Woman,
 )
-from rest_framework.serializers import ModelSerializer, IntegerField
+from rest_framework.serializers import ModelSerializer, IntegerField, CharField
 
 
 class HomeLockdownSerializer(ModelSerializer):
@@ -45,8 +45,26 @@ class PersonSerializer(ModelSerializer):
 
 
 class ManSerializer(PersonSerializer):
+    sex = CharField(read_only=True)
     class Meta(PersonSerializer.Meta):
         model = Man
+        fields = fields = [
+            "name",
+            "dni",
+            "address",
+            "history_id",
+            "date_of_birth",
+            "age",
+            "observations",
+            "doner",
+            "alcoholic",
+            "drinks_coffee",
+            "smokes",
+            "diseases",
+            "risk_factors",
+            "home_lockdowns",
+            "sex"
+        ]
 
 
 class PregnancySerializer(ModelSerializer):
@@ -71,6 +89,7 @@ class CytologicalTestSerializer(ModelSerializer):
 class WomanSerializer(PersonSerializer):
     pregnancies = PregnancySerializer(many=True, required=False)
     cytological_tests = CytologicalTestSerializer(many=True, required=False)
+    sex = CharField(read_only=True)
 
     class Meta:
         model = Woman
@@ -91,4 +110,5 @@ class WomanSerializer(PersonSerializer):
             "home_lockdowns",
             "pregnancies",
             "cytological_tests",
+            "sex"
         ]
