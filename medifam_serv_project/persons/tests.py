@@ -147,13 +147,13 @@ class PersonAPITest(APITestCase):
         query["age"] = "-25"
         response = self.client.get(url, data=query)
         self.assertEqual(len(response.data), 3)
-        self.assertTrue("Dani Guzman" in [x.name for x in response.data])
+        self.assertTrue("Dani Guzman" in [x['name'] for x in response.data])
 
         # Test range
         query["age"] = ":25 y 60"
         response = self.client.get(url, data=query)
         self.assertEqual(len(response.data), 5)
-        self.assertTrue("Tomas Gonzalez" in [x.name for x in response.data])
+        self.assertTrue("Tomas Gonzalez" in [x['name'] for x in response.data])
 
     def test_person_search_by_name(self):
         pass

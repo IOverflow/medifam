@@ -1,22 +1,22 @@
 import re
 from typing import Any, Dict, Optional
+from django_filters import CharFilter
 from django.db.models.query import QuerySet
 from rest_framework.request import Request
 from .models import Person, Woman
 from django_filters.rest_framework import FilterSet
 
 
-def build_args(operator: str, left: int, right: Optional[int]) -> Dict[str, Any]:
-    args = {}
+def build_args(operator: str, left: int, right: Optional[int]):
     if operator == "+":
-        args["age__gt"] = left
+        return lambda x: x.age > left
     elif operator == "=":
-        args["age__exact"] = left
+        return lambda x: x.age == left
     elif operator == "-":
-        args["age__lt"] = right
+        return lambda x: x.age < left
     elif operator == ":" and right is not None:
-        args["age__range"] = [left, right]
-    return args
+        return lambda x: left <= x.age <= right
+    return None
 
 
 def parse_request(request: Request):
@@ -44,7 +44,7 @@ def parse_request(request: Request):
     >>> val : {age__gt: 20}
     """
     age_regex = re.compile(
-        r"age=(?P<operator>(\+)|(\-)|(\:)(\=))\s*(?P<left>\d+)\s*([yY]\s*(?P<right>\d+))?",
+        r"(?P<operator>(\+)|(\-)|(\:)|(\=))\s*(?P<left>\d+)\s*([yY]\s*(?P<right>\d+))?",
         re.IGNORECASE,
     )
     age_str = request.query_params.get("age", None)
@@ -62,6 +62,12 @@ def parse_request(request: Request):
 
 
 class PersonFilterSet(FilterSet):
+    age = CharFilter(
+        field_name="age",
+        method="filter_age",
+        label="Age filter expression",
+    )
+
     class Meta:
         model = Person
         fields = {
@@ -79,11 +85,24 @@ class PersonFilterSet(FilterSet):
             "risk_factors": ["icontains"],
         }
 
-    @property
-    def qs(self):
-        queryset = super().qs
-        args = parse_request(self.request)
+    def filter_age(self, queryset, name, value):
+        args = None
+        age_regex = re.compile(
+            r"(?P<operator>(\+)|(\-)|(\:)|(\=))\s*(?P<left>\d+)\s*([yY]\s*(?P<right>\d+))?",
+            re.IGNORECASE,
+        )
+        if value:
+            match = age_regex.search(value)
+            if match:
+                gd = match.groupdict()
+                operator = gd["operator"]
+                left = int(gd["left"])
+                right = None
+                if operator == ":" and gd.get("right", None):
+                    right = int(gd["right"])
+                args = build_args(operator, left, right)
         if args:
-            return queryset.filter(**args)
+            q_ids = [x.pk for x in Person.objects.all() if args(x)]
+            return queryset.filter(pk__in=q_ids)
         else:
-            return queryset
+            return Person.objects.none()
