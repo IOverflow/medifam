@@ -147,16 +147,26 @@ class PersonAPITest(APITestCase):
         query["age"] = "-25"
         response = self.client.get(url, data=query)
         self.assertEqual(len(response.data), 3)
-        self.assertTrue("Dani Guzman" in [x['name'] for x in response.data])
+        self.assertTrue("Dani Guzman" in [x["name"] for x in response.data])
 
         # Test range
         query["age"] = ":25 y 60"
         response = self.client.get(url, data=query)
         self.assertEqual(len(response.data), 5)
-        self.assertTrue("Tomas Gonzalez" in [x['name'] for x in response.data])
+        self.assertTrue("Tomas Gonzalez" in [x["name"] for x in response.data])
 
     def test_person_search_by_name(self):
-        pass
+        query = {
+            "name": "Kmi Guzman",
+        }
+        url = reverse("person-filter", kwargs={"gender": "all"})
+        response = self.client.get(url, data=query)
+        # Assert there's only one
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+        # Assert it has dni = 96092912972
+        self.assertEqual(response.data[0]["dni"], "96092912972")
 
     def test_person_search_by_lastname(self):
         pass
