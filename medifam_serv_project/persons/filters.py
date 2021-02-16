@@ -45,6 +45,32 @@ class PersonFilterSet(FilterSet):
         lookup_expr="icontains",
         exclude=True,
     )
+    not_name = filters.CharFilter(
+        field_name="name",
+        lookup_expr="icontains",
+        exclude=True,
+    )
+    not_address = filters.CharFilter(
+        lookup_expr="icontains",
+        field_name="address",
+        exclude=True,
+    )
+    not_age = CharFilter(
+        field_name="age",
+        method="filter_age",
+        label="Age filter expression",
+        exclude=True,
+    )
+    not_doner = filters.BooleanFilter(field_name="doner", exclude=True)
+    not_smokes = filters.BooleanFilter(field_name="smokes", exclude=True)
+    not_alcoholic = filters.BooleanFilter(field_name="alcoholic", exclude=True)
+    not_drinks_coffee = filters.BooleanFilter(field_name="drinks_coffee", exclude=True)
+    not_year_of_birth = filters.DateFilter(
+        field_name="date_of_birth",
+        lookup_expr="year",
+        exclude=True,
+    )
+    not_date_of_birth = filters.BooleanFilter(field_name="date_of_birth", exclude=True)
 
     class Meta:
         model = Person

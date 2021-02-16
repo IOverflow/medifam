@@ -227,7 +227,7 @@ class PersonAPITest(APITestCase):
         self.assertTrue("Dani Guzman" in names)
 
         # Test #2: Search persons under 60 and above 25 that
-        # does'n suffer of diabetes and suffers from HA
+        # doesn't suffer of diabetes and suffers from HA
         query = {
             "age": ":25 y 50",
             "not_diseases": "Diabetes",

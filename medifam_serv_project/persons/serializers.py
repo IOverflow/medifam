@@ -46,6 +46,7 @@ class PersonSerializer(ModelSerializer):
 
 class ManSerializer(PersonSerializer):
     sex = CharField(read_only=True)
+
     class Meta(PersonSerializer.Meta):
         model = Man
         fields = fields = [
@@ -63,7 +64,7 @@ class ManSerializer(PersonSerializer):
             "diseases",
             "risk_factors",
             "home_lockdowns",
-            "sex"
+            "sex",
         ]
 
 
@@ -110,5 +111,5 @@ class WomanSerializer(PersonSerializer):
             "home_lockdowns",
             "pregnancies",
             "cytological_tests",
-            "sex"
+            "sex",
         ]
