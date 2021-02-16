@@ -30,6 +30,21 @@ class PersonFilterSet(FilterSet):
     diseases = filters.CharFilter(lookup_expr="icontains")
     risk_factors = filters.CharFilter(lookup_expr="icontains")
     year_of_birth = filters.DateFilter(field_name="date_of_birth", lookup_expr="year")
+    not_diseases = filters.CharFilter(
+        field_name="diseases",
+        exclude=True,
+        lookup_expr="icontains",
+    )
+    not_observations = filters.CharFilter(
+        field_name="observations",
+        exclude=True,
+        lookup_expr="icontains",
+    )
+    not_risk_factors = filters.CharFilter(
+        field_name="risk_factors",
+        lookup_expr="icontains",
+        exclude=True,
+    )
 
     class Meta:
         model = Person

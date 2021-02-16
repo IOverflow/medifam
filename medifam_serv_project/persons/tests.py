@@ -11,34 +11,59 @@ class PersonAPITest(APITestCase):
         # Populate database with some test data
         self.test_persons = [
             Woman.objects.create(
-                name="Kmi Guzman", dni="96092912972", date_of_birth="1996-09-29"
+                name="Kmi Guzman",
+                dni="96092912972",
+                date_of_birth="1996-09-29",
+                diseases="Diabetes, EPOC",
             ),
             Woman.objects.create(
-                name="Zhuyen Medina", dni="72012823441", date_of_birth="1972-01-28"
+                name="Zhuyen Medina",
+                dni="72012823441",
+                date_of_birth="1972-01-28",
+                diseases="HA, Stress",
             ),
             Woman.objects.create(
-                name="Lourdes Sanchez", dni="70042012979", date_of_birth="1970-04-20"
+                name="Lourdes Sanchez",
+                dni="70042012979",
+                date_of_birth="1970-04-20",
             ),
             Woman.objects.create(
-                name="Dani Guzman", dni="98021512972", date_of_birth="1998-02-15"
+                name="Dani Guzman",
+                dni="98021512972",
+                date_of_birth="1998-02-15",
+                diseases="Diabetes",
             ),
             Woman.objects.create(
-                name="Jane Doe", dni="56092912972", date_of_birth="1956-09-29"
+                name="Jane Doe",
+                dni="56092912972",
+                date_of_birth="1956-09-29",
+                diseases="Diabetes, HA",
             ),
             Man.objects.create(
-                name="Adri Gonzalez", dni="96010911144", date_of_birth="1996-01-09"
+                name="Adri Gonzalez",
+                dni="96010911144",
+                date_of_birth="1996-01-09",
             ),
             Man.objects.create(
-                name="Tomas Gonzalez", dni="66040712988", date_of_birth="1966-04-07"
+                name="Tomas Gonzalez",
+                dni="66040712988",
+                date_of_birth="1966-04-07",
             ),
             Man.objects.create(
-                name="Jhon Doe", dni="86092912972", date_of_birth="1986-09-29"
+                name="Jhon Doe",
+                dni="86092912972",
+                date_of_birth="1986-09-29",
             ),
             Man.objects.create(
-                name="Thoros Doe", dni="56092912977", date_of_birth="1956-09-29"
+                name="Thoros Doe",
+                dni="56092912977",
+                date_of_birth="1956-09-29",
+                diseases="Diabetes",
             ),
             Man.objects.create(
-                name="Kurt Doe", dni="96092011832", date_of_birth="1996-09-20"
+                name="Kurt Doe",
+                dni="96092011832",
+                date_of_birth="1996-09-20",
             ),
         ]
 
@@ -190,4 +215,26 @@ class PersonAPITest(APITestCase):
         pass
 
     def test_person_mixed_query(self):
-        pass
+        # Test #1: Search persons under 25 age with diabetes
+        query = {"age": "-25", "diseases": "diabetes"}
+        url = reverse("person-filter", kwargs={"gender": "all"})
+        response = self.client.get(url, data=query)
+
+        # Test that we get only 2 results
+        self.assertEqual(len(response.data), 2)
+        names = [x["name"] for x in response.data]
+        self.assertTrue("Kmi Guzman" in names)
+        self.assertTrue("Dani Guzman" in names)
+
+        # Test #2: Search persons under 60 and above 25 that
+        # does'n suffer of diabetes and suffers from HA
+        query = {
+            "age": ":25 y 50",
+            "not_diseases": "Diabetes",
+            "diseases": "HA",
+        }
+
+        # Test that we only get 1 result
+        response = self.client.get(url, data=query)
+        self.assertEqual(len(response.data), 1)
+        self.assertTrue(response.data[0]["name"] == "Zhuyen Medina")
