@@ -1,8 +1,8 @@
 # Ignore venv files
-./venv
+/venv
 
 # Ignore vscode config files
-./vscode
+/vscode
 
 # __pycache__ folder
 /medifam_serv_project/accounts/__pycache__

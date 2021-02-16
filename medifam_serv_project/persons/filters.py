@@ -3,6 +3,7 @@ from typing import Optional
 from django_filters import CharFilter
 from .models import Person
 from django_filters.rest_framework import FilterSet
+import django_filters as filters
 
 
 def build_args(operator: str, left: int, right: Optional[int]):
@@ -23,23 +24,23 @@ class PersonFilterSet(FilterSet):
         method="filter_age",
         label="Age filter expression",
     )
+    name = filters.CharFilter(lookup_expr="icontains")
+    address = filters.CharFilter(lookup_expr="icontains")
+    observations = filters.CharFilter(lookup_expr="icontains")
+    diseases = filters.CharFilter(lookup_expr="icontains")
+    risk_factors = filters.CharFilter(lookup_expr="icontains")
+    year_of_birth = filters.DateFilter(field_name="date_of_birth", lookup_expr="year")
 
     class Meta:
         model = Person
-        fields = {
-            "name": ["icontains"],
-            "dni": ["iexact"],
-            "address": ["icontains"],
-            "history_id": ["iexact"],
-            "date_of_birth": ["exact", "year__exact"],
-            "observations": ["icontains"],
-            "doner": ["exact"],
-            "alcoholic": ["exact"],
-            "drinks_coffee": ["exact"],
-            "smokes": ["exact"],
-            "diseases": ["icontains"],
-            "risk_factors": ["icontains"],
-        }
+        fields = (
+            "dni",
+            "doner",
+            "alcoholic",
+            "smokes",
+            "drinks_coffee",
+            "date_of_birth",
+        )
 
     def filter_age(self, queryset, name, value):
         args = None
