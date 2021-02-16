@@ -169,7 +169,19 @@ class PersonAPITest(APITestCase):
         self.assertEqual(response.data[0]["dni"], "96092912972")
 
     def test_person_search_by_lastname(self):
-        pass
+        # Arrange
+        query = {"name": "Gonzalez"}
+        url = reverse("person-filter", kwargs={"gender": "all"})
+
+        # Act
+        response = self.client.get(url, data=query)
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+        names = [x["name"] for x in response.data]
+        self.assertTrue("Adri Gonzalez" in names)
+        self.assertTrue("Tomas Gonzalez" in names)
 
     def test_person_search_by_disease(self):
         pass
