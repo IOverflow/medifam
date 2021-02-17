@@ -43,7 +43,7 @@ class RetrieveManApiView(generics.RetrieveAPIView):
 class RetrievePersonApiView(generics.RetrieveAPIView):
     lookup_field = "dni"
     serializer_class = PersonSerializer
-    queryset = Man.objects.all()
+    queryset = Person.objects.all()
 
 
 class FilterPersonApiView(generics.ListAPIView):

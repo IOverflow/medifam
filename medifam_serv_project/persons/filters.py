@@ -81,6 +81,8 @@ class PersonFilterSet(FilterSet):
             "smokes",
             "drinks_coffee",
             "date_of_birth",
+            "drinks_coffee",
+            "history_id"
         )
 
     def filter_age(self, queryset, name, value):

@@ -76,7 +76,7 @@ class PersonAPITest(APITestCase):
         # Filter man url
         self.filter_man = reverse("retrieve-man", kwargs={"dni": "96010911144"})
 
-    def test_person_create(self):
+    def test_man_create(self):
         data = {
             "name": "AName Anonymous",
             "dni": "01234567890",
@@ -112,7 +112,26 @@ class PersonAPITest(APITestCase):
         pass
 
     def test_person_detail(self):
-        pass
+        dni = "96010911144"
+        url = reverse("retrieve-person", kwargs={"dni": dni})
+        response = self.client.get(url)
+
+        fields = [
+            "dni",
+            "age",
+            "address",
+            "risk_factors",
+            "observations",
+            "diseases",
+            "date_of_birth",
+            "smokes",
+            "alcoholic",
+            "doner",
+            "history_id",
+        ]
+
+        self.assertEqual(response.data["name"], "Adri Gonzalez")
+        self.assertTrue(all(x in response.data for x in fields))
 
     def test_person_get_women(self):
         response = self.client.get(self.filter_woman)
