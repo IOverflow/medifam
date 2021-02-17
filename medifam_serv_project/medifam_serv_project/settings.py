@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     # Cross origin resource sharing app
     "corsheaders",
     "django_filters",
+    # Swagger documentation
+    "drf_yasg",
     "accounts",
     "persons",
 ]
