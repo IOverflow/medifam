@@ -1,5 +1,5 @@
 from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APIClient
 from django.urls import reverse
 from .models import Man, Person, Woman
 
@@ -66,6 +66,17 @@ class PersonAPITest(APITestCase):
                 date_of_birth="1996-09-20",
             ),
         ]
+        # Create a valid user for the requests
+        create_user_url = reverse("account-create")
+        user = {
+            "username": "test",
+            "password": "Userpass123..",
+            "email": "example@example.com",
+        }
+        token = self.client.post(create_user_url, data=user).data["token"]
+        self.client = APIClient()
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {token}")
+
 
         # Store create url
         self.create_man_url = reverse("persons-create-man")

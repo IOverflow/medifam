@@ -8,9 +8,14 @@ from rest_framework import views, generics
 from rest_framework.request import Request
 from rest_framework import status
 from django_filters import rest_framework as filters
+from rest_framework import permissions
+from rest_framework import authentication
 
 # Create your views here.
 class CreateManApiView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
+
     def post(self, request: Request, format="json"):
         man = ManSerializer(data=request.data)
         if man.is_valid():
@@ -20,6 +25,9 @@ class CreateManApiView(views.APIView):
 
 
 class CreateWomanApiView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
+
     def post(self, request: Request, format="json"):
         woman = WomanSerializer(data=request.data)
         if woman.is_valid():
@@ -32,23 +40,31 @@ class RetrieveWomanApiView(generics.RetrieveAPIView):
     lookup_field = "dni"
     serializer_class = WomanSerializer
     queryset = Woman.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
 
 
 class RetrieveManApiView(generics.RetrieveAPIView):
     lookup_field = "dni"
     serializer_class = ManSerializer
     queryset = Man.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
 
 
 class RetrievePersonApiView(generics.RetrieveAPIView):
     lookup_field = "dni"
     serializer_class = PersonSerializer
     queryset = Person.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
 
 
 class FilterPersonApiView(generics.ListAPIView):
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = PersonFilterSet
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
 
     def get_queryset(self):
         queryset = Person.objects.none()

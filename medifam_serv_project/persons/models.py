@@ -1,5 +1,4 @@
 import datetime
-from re import T
 from django.db import models
 from django.db.models.enums import TextChoices
 
