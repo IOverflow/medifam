@@ -77,7 +77,6 @@ class PersonAPITest(APITestCase):
         self.client = APIClient()
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {token}")
 
-
         # Store create url
         self.create_man_url = reverse("persons-create-man")
         self.create_woman_url = reverse("persons-create-woman")
@@ -117,7 +116,30 @@ class PersonAPITest(APITestCase):
         self.assertEqual(Woman.objects.last().dni, "01234567890")
 
     def test_person_update(self):
-        pass
+        # Test for woman update
+        woman_url = reverse("update-woman", kwargs={"dni": "96092912972"})
+        data = {"name": "Camila Guzman"}
+        response = self.client.post(woman_url, data=data)
+        # Assert that post method is not allowed
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        # Test with patch
+        self.client.patch(woman_url, data=data)
+        # Test that name was successfully changed
+        self.assertEqual(
+            Woman.objects.all().get(dni="96092912972").name,
+            "Camila Guzman",
+        )
+
+        # Test for man update
+        man_url = reverse("update-man", kwargs={"dni": "96010911144"})
+        data = {"name": "Adrian Gonzalez"}
+        response = self.client.post(man_url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.client.patch(man_url, data=data)
+        self.assertEqual(
+            Man.objects.all().get(dni="96010911144").name,
+            "Adrian Gonzalez",
+        )
 
     def test_person_delete(self):
         pass

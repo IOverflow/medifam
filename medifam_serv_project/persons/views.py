@@ -52,6 +52,34 @@ class RetrieveManApiView(generics.RetrieveAPIView):
     authentication_classes = [authentication.TokenAuthentication]
 
 
+class RetrieveUpdateManApiView(generics.RetrieveUpdateAPIView):
+    lookup_field = "dni"
+    serializer_class = ManSerializer
+    queryset = Man.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
+
+    def post(self, request: Request, format="json", **kwargs):
+        return Response(
+            {"error": "Invalid method: POST"},
+            status=status.HTTP_405_METHOD_NOT_ALLOWED,
+        )
+
+
+class RetrieveUpdateWomanApiView(generics.RetrieveUpdateAPIView):
+    lookup_field = "dni"
+    serializer_class = WomanSerializer
+    queryset = Woman.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
+
+    def post(self, request: Request, format="json", **kwargs):
+        return Response(
+            {"error": "Invalid method: POST"},
+            status=status.HTTP_405_METHOD_NOT_ALLOWED,
+        )
+
+
 class RetrievePersonApiView(generics.RetrieveAPIView):
     lookup_field = "dni"
     serializer_class = PersonSerializer

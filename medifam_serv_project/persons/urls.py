@@ -26,4 +26,14 @@ urlpatterns = [
         views.RetrievePersonApiView.as_view(),
         name="retrieve-person",
     ),
+    path(
+        "update/woman/<str:dni>",
+        views.RetrieveUpdateWomanApiView.as_view(),
+        name="update-woman",
+    ),
+    path(
+        "update/man/<str:dni>",
+        views.RetrieveUpdateManApiView.as_view(),
+        name="update-man",
+    ),
 ]
