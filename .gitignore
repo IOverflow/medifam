@@ -8,6 +8,7 @@
 /medifam_serv_project/accounts/__pycache__
 /medifam_serv_project/medifam_serv_project/__pycache__
 /medifam_serv_project/persons/__pycache__
+/medifam_serv_project/persons/filter_parser/__pycache__
 
 # Ignore database file
 /medifam_serv_project/db.sqlite3

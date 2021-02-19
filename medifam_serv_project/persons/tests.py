@@ -261,7 +261,21 @@ class PersonAPITest(APITestCase):
         self.assertTrue("Tomas Gonzalez" in names)
 
     def test_person_search_by_disease(self):
-        pass
+        # Test get all woman with diabetes
+        url = reverse("person-filter", kwargs={"gender": "woman"})
+        data = {
+            "diseases": "diabetes",
+        }
+        response = self.client.get(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 3)
+        names = [
+            "Kmi Guzman",
+            "Dani Guzman",
+            "Jane Doe",
+        ]
+        response_names = [x["name"] for x in response.data]
+        self.assertTrue(all(x in response_names for x in names))
 
     def test_person_search_by_observation(self):
         pass
@@ -282,8 +296,7 @@ class PersonAPITest(APITestCase):
         # doesn't suffer of diabetes and suffers from HA
         query = {
             "age": ":25 y 50",
-            "not_diseases": "Diabetes",
-            "diseases": "HA",
+            "diseases": "HA && -Diabetes",
         }
 
         # Test that we only get 1 result
