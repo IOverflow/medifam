@@ -59,6 +59,9 @@ class Person(models.Model):
             )
         )
 
+    def __str__(self) -> str:
+        return f"{self.name}"
+
 
 class EndPregnancyCauseChoices(TextChoices):
     ABORTION = "Abortion", "Abortion"

@@ -4,7 +4,9 @@ from django_filters import CharFilter
 from .models import Person
 from django_filters.rest_framework import FilterSet
 import django_filters as filters
-
+from django.db.models.query_utils import Q
+from django.db.models.query import QuerySet
+from .filter_parser import logical_parser
 
 def build_args(operator: str, left: int, right: Optional[int]):
     if operator == "+":
@@ -26,33 +28,13 @@ class PersonFilterSet(FilterSet):
     )
     name = filters.CharFilter(lookup_expr="icontains")
     address = filters.CharFilter(lookup_expr="icontains")
-    observations = filters.CharFilter(lookup_expr="icontains")
-    diseases = filters.CharFilter(lookup_expr="icontains")
-    risk_factors = filters.CharFilter(lookup_expr="icontains")
+    observations = filters.CharFilter(method="parse_text")
+    diseases = filters.CharFilter(method="parse_text")
+    risk_factors = filters.CharFilter(lookup_expr="parse_text")
     year_of_birth = filters.DateFilter(field_name="date_of_birth", lookup_expr="year")
-    not_diseases = filters.CharFilter(
-        field_name="diseases",
-        exclude=True,
-        lookup_expr="icontains",
-    )
-    not_observations = filters.CharFilter(
-        field_name="observations",
-        exclude=True,
-        lookup_expr="icontains",
-    )
-    not_risk_factors = filters.CharFilter(
-        field_name="risk_factors",
-        lookup_expr="icontains",
-        exclude=True,
-    )
     not_name = filters.CharFilter(
         field_name="name",
         lookup_expr="icontains",
-        exclude=True,
-    )
-    not_address = filters.CharFilter(
-        lookup_expr="icontains",
-        field_name="address",
         exclude=True,
     )
     not_age = CharFilter(
@@ -82,7 +64,7 @@ class PersonFilterSet(FilterSet):
             "drinks_coffee",
             "date_of_birth",
             "drinks_coffee",
-            "history_id"
+            "history_id",
         )
 
     def filter_age(self, queryset, name, value):
@@ -106,3 +88,24 @@ class PersonFilterSet(FilterSet):
             return queryset.filter(pk__in=q_ids)
         else:
             return Person.objects.none()
+
+    def filter_text(self, queryset: QuerySet, name: str, value: str):
+        # Split a multi request into values to join in an AND operation
+        q= Q()
+        values = value.split()
+
+        for val in values:
+            if val.startswith("-"):
+                val = val[1:]
+                q &= ~Q(**{f"{name}__icontains": val})
+            else:
+                q &= Q(**{f"{name}__icontains": val})
+
+        return queryset.filter(q)
+
+    def parse_text(self, queryset: QuerySet, name: str, value: str)-> QuerySet:
+        # get the ast
+        node = logical_parser.parse(value)
+        # evaluate the ast
+        q_expr = logical_parser.evaluate(node, name)
+        return queryset.filter(q_expr)
